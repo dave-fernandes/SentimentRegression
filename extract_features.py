@@ -445,7 +445,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
 
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
-  extract_features(bert_model_dir=FLAGS.bert_model_dir, input_file=FLAGS.input_file, output_file=FLAGS.output_file, do_lower_case=FLAGS.do_lower_case, layer_flags=FLAGS.layers, group_count=FLAGS.group_count, max_seq_length=FLAGS.max_seq_length, batch_size=FLAGS.batch_size, master=FLAGS.master, num_tpu_cores=FLAGS.num_tpu_cores, use_tpu=FLAGS.use_tpu, use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
+  extract(bert_model_dir=FLAGS.bert_model_dir, input_file=FLAGS.input_file, output_file=FLAGS.output_file, do_lower_case=FLAGS.do_lower_case, layer_flags=FLAGS.layers, group_count=FLAGS.group_count, max_seq_length=FLAGS.max_seq_length, batch_size=FLAGS.batch_size, master=FLAGS.master, num_tpu_cores=FLAGS.num_tpu_cores, use_tpu=FLAGS.use_tpu, use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
 
 if __name__ == "__main__":
