@@ -21,6 +21,7 @@ from __future__ import print_function
 import re
 import numpy as np
 import os
+import time
 
 import modeling
 import tokenization
@@ -401,6 +402,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
   group_number = 1
   vector_list = []
   vector_count = 0
+  t0 = time.perf_counter()
 
   with tf.python_io.TFRecordWriter(output_file) as writer:
     for result in estimator.predict(input_fn, yield_single_examples=True):
@@ -411,6 +413,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
       token = feature.tokens[0]
       if token != '[CLS]':
         print('Unexpected token')
+        break
       
       vector = None
       
@@ -427,8 +430,11 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
       vector_count += 1
       
       if vector_count == group_count:
-        if group_number % 10 == 0:
-          print('Processed group:', group_number)
+        if group_number % 1000 == 0:
+          t1 = time.perf_counter()
+          dt = t1 - t0
+          t0 = t1
+          print('Processed group:', group_number, 'in', dt, 'sec')
         
         example = tf.train.Example(
           features=tf.train.Features(
