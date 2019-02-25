@@ -26,6 +26,7 @@ import time
 import modeling
 import tokenization
 import tensorflow as tf
+import subprocess
 
 flags = tf.flags
 
@@ -64,12 +65,9 @@ flags.DEFINE_bool(
 batch_size_DEFAULT = 32
 flags.DEFINE_integer("batch_size", batch_size_DEFAULT, "Batch size for predictions.")
 
-use_tpu_DEFAULT = False
-flags.DEFINE_bool("use_tpu", use_tpu_DEFAULT, "Whether to use TPU or GPU/CPU.")
-
-master_DEFAULT = None
-flags.DEFINE_string("master", master_DEFAULT,
-                    "If using a TPU, the address of the master.")
+tpu_name_DEFAULT = None
+flags.DEFINE_string("tpu_name", tpu_name_DEFAULT,
+                    "If using a TPU, the name of the TPU.")
 
 num_tpu_cores_DEFAULT = 8
 flags.DEFINE_integer(
@@ -358,7 +356,22 @@ def _bytes_feature(value):
 def _string_feature(value):
     return _bytes_feature(value.encode('utf-8'))
 
-def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case_DEFAULT, layer_flags=layers_DEFAULT, group_count=group_count_DEFAULT, max_seq_length=max_seq_length_DEFAULT, batch_size=batch_size_DEFAULT, master=master_DEFAULT, num_tpu_cores=num_tpu_cores_DEFAULT, use_tpu=use_tpu_DEFAULT, use_one_hot_embeddings=use_one_hot_embeddings_DEFAULT):
+def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case_DEFAULT, layer_flags=layers_DEFAULT, group_count=group_count_DEFAULT, max_seq_length=max_seq_length_DEFAULT, batch_size=batch_size_DEFAULT, tpu_name=tpu_name_DEFAULT, num_tpu_cores=num_tpu_cores_DEFAULT, use_one_hot_embeddings=use_one_hot_embeddings_DEFAULT):
+  
+  use_tpu = tpu_name != None
+  
+  if use_tpu:
+    my_project_name = subprocess.check_output([
+    'gcloud','config','get-value','project'])
+    my_zone = subprocess.check_output([
+    'gcloud','config','get-value','compute/zone'])
+    cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
+    tpu_names=[FLAGS.tpu_name],
+    zone=my_zone,
+    project=my_project)
+    master = tpu_cluster_resolver.get_master()
+  else:
+    master = None
   
   bert_config_file = os.path.join(bert_model_dir, 'bert_config.json')
   vocab_file = os.path.join(bert_model_dir, 'vocab.txt')
@@ -430,7 +443,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
       vector_count += 1
       
       if vector_count == group_count:
-        if group_number % 1000 == 0:
+        if (group_number - 1) % 1000 == 0:
           t1 = time.perf_counter()
           dt = t1 - t0
           t0 = t1
@@ -451,7 +464,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
 
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
-  extract(bert_model_dir=FLAGS.bert_model_dir, input_file=FLAGS.input_file, output_file=FLAGS.output_file, do_lower_case=FLAGS.do_lower_case, layer_flags=FLAGS.layers, group_count=FLAGS.group_count, max_seq_length=FLAGS.max_seq_length, batch_size=FLAGS.batch_size, master=FLAGS.master, num_tpu_cores=FLAGS.num_tpu_cores, use_tpu=FLAGS.use_tpu, use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
+  extract(bert_model_dir=FLAGS.bert_model_dir, input_file=FLAGS.input_file, output_file=FLAGS.output_file, do_lower_case=FLAGS.do_lower_case, layer_flags=FLAGS.layers, group_count=FLAGS.group_count, max_seq_length=FLAGS.max_seq_length, batch_size=FLAGS.batch_size, tpu_name=FLAGS.tpu_name, num_tpu_cores=FLAGS.num_tpu_cores, use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
 
 if __name__ == "__main__":
