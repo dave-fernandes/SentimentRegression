@@ -1,5 +1,5 @@
 # Sentiment Regression Analysis
-The TensorFlow code here performs a _regression_ analysis to predict the star rating for a textual product review. This is a little different from the usual sentiment _classification_ analysis where the review is simply flagged as positive or negative.
+The TensorFlow code here performs a _regression_ analysis to predict the star-rating for a textual product review. This is a little different from the usual sentiment _classification_ analysis where the review is simply flagged as positive or negative.
 
 ## Data
 This analysis uses Amazon product review data obtained from https://www.kaggle.com/snap/amazon-fine-food-reviews/version/2
@@ -25,11 +25,12 @@ Finally, we also attempted to find a regression for the helpfulness score for re
 ## Discussion
 The BERT sentence embeddings allowed us to obtain a reasonably good regression for review score from the written product review and summary line. This approach of using the BERT transformer to compute feature vectors as a preprocessing stage vastly reduced the amount of computation needed to run experiments as compared to a fine-tuning approach where the BERT model is a component of the full regression model.
 
-If we look into cases where the model did not perform well, we find that many discrepancies between model and actual score are due to the user misunderstanding or incorrectly using the star-rating system and giving 1-star to a product they really liked or 5-stars to a product they did not like.
+If we look into cases where the model did not perform well, we find that many discrepancies between model and actual score are due to the customer misunderstanding or incorrectly using the star-rating system and giving 1-star to a product they really liked or 5-stars to a product they did not like.
 
 Another class of discrepancies is due to the model misinterpreting sarcasm. For example, the following 5-star review obtains a low predicted score:
 * Summary: "BEWARE - May cause your dog to ignore you."
 * Review: "If you want your dog to ignore you for a while, this item (with the treat holder)is an ideal solution!I ..."
+
 And the following 1-star review obtains a high predicted score:
 * Summary: "Love getting expired food!"
 * Review: "I love getting a case of cereal in Oct, 2012 when the product expired in JUNE OF 2012! ..."
