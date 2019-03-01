@@ -447,7 +447,7 @@ def extract(bert_model_dir, input_file, output_file, do_lower_case=do_lower_case
       vector_count += 1
       
       if vector_count == group_count:
-        if (group_number - 1) % 32 == 0:
+        if (group_number - 1) % 1000 == 0:
           if not use_tpu:
             t1 = time.perf_counter()
             dt = t1 - t0
