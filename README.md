@@ -11,19 +11,21 @@ The model uses a pair of feature vectors computed from a pre-trained transformer
 * The output from the last convolutional layer (two 15-element vectors) is fed into a fully connected network with a final linear layer to produce the regression output value.
 * The best regression performance was obtained when all convolutional layers and fully connected layers used _tanh_ activations. (The output layer has no activation.) Best performance was also obtained with no batch normalization.
 
+Note: This model is a little overcomplicated for the task at hand. I originally developed it to predict stock market moves based on news stories. As such, it needed to handle many identically-weighted input text streams. And so, it uses the convolution layers to process each text stream input in an identical manner.
+
 ## Results
 A random subset of 5000 predictions from the test set are plotted below against the actual review scores. Actual scores have had gaussian "noise" added for visualization purposes. (Otherwise, the values would all be plotted on lines at integral values of 1-5.) A 1:1 reference line has been plotted for comparison. Although the data are not distributed normally, the Pearson correlation coefficient is a useful metric for comparing models; r = 0.83 for the full test set. We can also use the non-parametric Kendall tau measure (tau = 0.68).
 
 ![alt text](https://github.com/dave-fernandes/SentimentRegression/blob/master/images/score_scatter_plot.png "Scatter plot of predicted versus actual review scores.")
 
-A box plot showing mean (yellow line) and interquartile ranges (boxes) is shown below with a reference 1:1 line.
+A box plot showing median (yellow line) and interquartile ranges (boxes) is shown below with a reference 1:1 line.
 
 ![alt text](https://github.com/dave-fernandes/SentimentRegression/blob/master/images/score_box_plot.png "Box plot of predicted versus actual review scores.")
 
-Finally, we also attempted to find a regression for the helpfulness score for reviews (ratio of up-votes to total votes). You can run the notebook to see these results plotted; however, the regression coefficients were fairly low (r = 0.45, tau = 0.33).
+Finally, I also attempted to find a regression for the helpfulness score for reviews (ratio of up-votes to total votes). You can run the notebook to see these results plotted; however, the regression coefficients were fairly low (r = 0.45, tau = 0.33).
 
 ## Discussion
-The BERT sentence embeddings allowed us to obtain a reasonably good regression for review score from the written product review and summary line. This approach of using the BERT transformer to compute feature vectors as a preprocessing stage vastly reduced the amount of computation needed to run experiments as compared to a fine-tuning approach where the BERT model is a component of the full regression model.
+The BERT sentence embeddings allowed me to obtain a reasonably good regression for review score from the written product review and summary line. This approach of using the BERT transformer to compute feature vectors as a preprocessing stage vastly reduced the amount of computation needed to run experiments as compared to a fine-tuning approach where the BERT model is a component of the full regression model.
 
 If we look into cases where the model did not perform well, we find that many discrepancies between model and actual score are due to the customer misunderstanding or incorrectly using the star-rating system and giving 1-star to a product they really liked or 5-stars to a product they did not like.
 
@@ -44,4 +46,4 @@ And another common cause of discrepancies is when the customer provides a mostly
 
 ## Implementation Notes
 * Tested with Python 3.6.7 and TensorFlow 1.12.0
-* Feature vector extraction was performed on a Google Cloud TPU using a free account. See https://cloud.google.com/tpu/docs/quickstart
+* Feature vector extraction was performed on a Google Cloud TPU using a free account \(Thanks, Google!\). See https://cloud.google.com/tpu/docs/quickstart
